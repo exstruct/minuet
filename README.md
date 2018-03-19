@@ -1,0 +1,2 @@
+# minuet
+compile-time serialization
