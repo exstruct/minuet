@@ -26,8 +26,8 @@ defimpl Minuet.Format.TERM, for: Minuet.Type.Constant do
     %{subject: [subject | _]} = vars
 
     {quote line: line do
-      unquote(subject) = unquote(Macro.escape(expression))
-    end, vars}
+       unquote(subject) = unquote(Macro.escape(expression))
+     end, vars}
   end
 
   def exit(_, vars) do
@@ -118,8 +118,8 @@ defimpl Minuet.Format.TERM, for: Minuet.Type.Value do
     %{subject: [subject | _]} = vars
 
     {quote line: line do
-      unquote(subject) = unquote(expression)
-    end, vars}
+       unquote(subject) = unquote(expression)
+     end, vars}
   end
 
   def exit(_, vars) do

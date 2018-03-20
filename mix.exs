@@ -40,7 +40,8 @@ defmodule Minuet.MixProject do
       {:rl, "~> 0.1", only: :dev, runtime: false},
       {:excoveralls, "~> 0.8", only: :test},
       {:dialyzex, "~> 1.1.0", only: :dev},
-      {:stream_data, "~> 0.4.2", only: :test}
+      {:stream_data, "~> 0.4.2", only: :test},
+      {:benchee, github: "PragTob/benchee", only: :test}
     ]
   end
 

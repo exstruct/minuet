@@ -137,6 +137,46 @@ defmodule Test.Minuet do
     end
   end
 
+  if Mix.env() == :bench do
+    test "benchmark" do
+      ast = root() |> resize(100) |> pick()
+      data = check_term(ast)
+      json = compile_fun(ast, Minuet.Format.JSON)
+      msgpack = compile_fun(ast, Minuet.Format.MSGPACK)
+
+      Benchee.run(
+        %{
+          "json | minuet" => &json.run/0,
+          "json | poison" => fn ->
+            Poison.encode_to_iodata!(data)
+          end,
+          "msgpack | minuet" => &msgpack.run/0,
+          "msgpack | msgpax" => fn ->
+            Msgpax.pack!(data)
+          end
+        },
+        measure_memory: true
+      )
+    end
+
+    defp compile_fun(ast, format) do
+      body = Minuet.compile(ast, format)
+
+      quote do
+        module = unquote(Module.concat(__MODULE__, format)).BENCH
+
+        defmodule module do
+          def run do
+            unquote(body)
+          end
+        end
+
+        module
+      end
+      |> eval()
+    end
+  end
+
   defp check_json(ast) do
     ast
     |> Minuet.compile(Minuet.Format.JSON)
