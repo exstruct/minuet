@@ -8,6 +8,15 @@ defmodule Minuet.Type.Enumerable.Item do
     alias Minuet.Util
 
     def compile(
+          %{value: %Minuet.Type.Condition{value: value} = condition} = item,
+          serializer,
+          vars
+        ) do
+      %{condition | value: %{item | value: value}}
+      |> @protocol.compile(serializer, vars)
+    end
+
+    def compile(
           %{line: line, value: value, enter: v_enter, exit: v_exit} = item,
           serializer,
           vars

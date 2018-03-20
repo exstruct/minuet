@@ -161,7 +161,7 @@ if Code.ensure_compiled?(Poison) do
 
       {quote line: line do
          unquote(buffer) = [
-           Poison.Encoder.encode(unquote(expression), %{})
+           Poison.Encoder.encode(unquote(expression), [])
            | unquote(buffer)
          ]
        end, vars}

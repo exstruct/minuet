@@ -11,20 +11,27 @@ defmodule Test.Minuet do
   end
 
   defp root() do
-    tree = tree(t_leaf(), &t_subtree/1)
+    leaf = t_leaf()
+    tree = tree(leaf, &t_subtree/1)
 
     t_struct(%T.Root{
       value:
         one_of([
-          t_leaf(),
+          leaf,
           tree,
-          t_condition(t_leaf()),
+          t_condition(leaf),
           t_condition(tree)
         ])
     })
   end
 
   defp t_subtree(child) do
+    child =
+      one_of([
+        child,
+        t_condition(child)
+      ])
+
     one_of([
       t_enumerable(child),
       t_map(child)
@@ -45,6 +52,13 @@ defmodule Test.Minuet do
       float(),
       string(:printable)
     ])
+    |> tree(fn expr ->
+      one_of([
+        expr,
+        list_of(expr),
+        map_of(string(:printable), expr)
+      ])
+    end)
   end
 
   defp t_constant do
@@ -55,18 +69,22 @@ defmodule Test.Minuet do
 
   defp t_value do
     t_struct(%T.Value{
-      expression: t_expression()
+      expression:
+        t_expression()
+        |> bind(&constant(Macro.escape(&1)))
     })
   end
 
   defp t_enumerable(child) do
+    child = t_enumerable_item(child)
+
     t_struct(%T.Enumerable{
       expression: list_of(integer()),
       assign: constant(quote(do: _)),
       item:
         one_of([
-          t_enumerable_item(child),
-          t_condition(t_enumerable_item(child))
+          child,
+          t_condition(child)
         ])
     })
   end

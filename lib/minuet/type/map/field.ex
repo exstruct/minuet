@@ -9,6 +9,15 @@ defmodule Minuet.Type.Map.Field do
     alias Minuet.Util
 
     def compile(
+          %{value: %Minuet.Type.Condition{value: value} = condition} = field,
+          serializer,
+          vars
+        ) do
+      %{condition | value: %{field | value: value}}
+      |> @protocol.compile(serializer, vars)
+    end
+
+    def compile(
           %{line: line, value: value, enter: v_enter, exit: v_exit} = field,
           serializer,
           vars

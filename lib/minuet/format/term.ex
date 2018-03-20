@@ -21,17 +21,13 @@ defimpl Minuet.Format.TERM, for: Minuet.Type.Root do
   end
 end
 
-defimpl Minuet.Format.TERM,
-  for: [
-    Minuet.Type.Constant,
-    Minuet.Type.Value
-  ] do
+defimpl Minuet.Format.TERM, for: Minuet.Type.Constant do
   def enter(%{expression: expression, line: line}, vars) do
     %{subject: [subject | _]} = vars
 
     {quote line: line do
-       unquote(subject) = unquote(expression)
-     end, vars}
+      unquote(subject) = unquote(Macro.escape(expression))
+    end, vars}
   end
 
   def exit(_, vars) do
@@ -114,5 +110,19 @@ defimpl Minuet.Format.TERM, for: Minuet.Type.Map.Field do
 
   defp subject_var(id) do
     Macro.var(:"subject_#{id}", __MODULE__)
+  end
+end
+
+defimpl Minuet.Format.TERM, for: Minuet.Type.Value do
+  def enter(%{expression: expression, line: line}, vars) do
+    %{subject: [subject | _]} = vars
+
+    {quote line: line do
+      unquote(subject) = unquote(expression)
+    end, vars}
+  end
+
+  def exit(_, vars) do
+    {nil, vars}
   end
 end
