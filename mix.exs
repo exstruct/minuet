@@ -6,7 +6,7 @@ defmodule Minuet.MixProject do
       app: :minuet,
       version: "0.1.0",
       elixir: "~> 1.6",
-      description: "hypermedia api toolkit",
+      description: "compile-time serialization",
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,

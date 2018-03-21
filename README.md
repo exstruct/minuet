@@ -1,5 +1,7 @@
 # minuet
 
+compile-time serialization
+
 ## Installation
 
 This package can be installed

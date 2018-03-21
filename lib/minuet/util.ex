@@ -1,4 +1,6 @@
 defmodule Minuet.Util do
+  @moduledoc false
+
   def compile(nil, _, vars) do
     {nil, vars}
   end
