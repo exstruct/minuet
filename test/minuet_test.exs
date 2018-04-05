@@ -10,9 +10,9 @@ defmodule Test.Minuet do
     |> fixed_map()
   end
 
-  defp root() do
+  defp data_root() do
     leaf = t_leaf()
-    tree = tree(leaf, &t_subtree/1)
+    tree = tree(leaf, &t_data_subtree/1)
 
     t_struct(%T.Root{
       value:
@@ -25,7 +25,27 @@ defmodule Test.Minuet do
     })
   end
 
-  defp t_subtree(child) do
+  defp element_root() do
+    leaf =
+      one_of([
+        t_struct(%T.Constant{
+          expression: string(:alphanumeric)
+        })
+      ])
+
+    # tree = tree(leaf, &t_element_subtree/1)
+    tree = t_element_subtree(leaf)
+
+    t_struct(%T.Root{
+      value:
+        one_of([
+          tree,
+          t_condition(tree)
+        ])
+    })
+  end
+
+  defp t_data_subtree(child) do
     child =
       one_of([
         child,
@@ -35,6 +55,21 @@ defmodule Test.Minuet do
     one_of([
       t_enumerable(child),
       t_map(child)
+    ])
+  end
+
+  defp t_element_subtree(child) do
+    child =
+      one_of([
+        child,
+        t_condition(child)
+      ])
+
+    elem = t_element(child)
+
+    one_of([
+      t_enumerable(elem),
+      elem
     ])
   end
 
@@ -122,6 +157,15 @@ defmodule Test.Minuet do
     })
   end
 
+  defp t_element(child) do
+    t_struct(%T.Element{
+      tag: string(:alphanumeric),
+      # TODO
+      attributes: constant([]),
+      children: list_of(child)
+    })
+  end
+
   defp t_condition(child) do
     t_struct(%T.Condition{
       expression: boolean(),
@@ -129,17 +173,27 @@ defmodule Test.Minuet do
     })
   end
 
-  property "compilation" do
-    check all tree <- root() do
+  property "data structure" do
+    check all tree <- data_root() do
       term = check_term(tree)
       assert term == check_json(tree)
       assert term == check_msgpack(tree)
     end
   end
 
+  property "elements" do
+    check all tree <- element_root() do
+      # term = check_term(tree)
+      check_xml(tree)
+      # assert term == check_xml(tree)
+      check_html(tree)
+      # assert term == check_html(tree)
+    end
+  end
+
   if Mix.env() == :bench do
     test "benchmark" do
-      ast = root() |> resize(100) |> pick()
+      ast = data_root() |> resize(100) |> pick()
       data = check_term(ast)
       json = compile_fun(ast, Minuet.Format.JSON)
       msgpack = compile_fun(ast, Minuet.Format.MSGPACK)
@@ -204,6 +258,36 @@ defmodule Test.Minuet do
       data ->
         data
         |> Msgpax.unpack!()
+    end
+  end
+
+  defp check_xml(ast) do
+    ast
+    |> Minuet.compile(Minuet.Format.XML)
+    |> eval()
+    |> :erlang.iolist_to_binary()
+    |> case do
+      "" ->
+        nil
+
+      data ->
+        # TODO parse
+        data
+    end
+  end
+
+  defp check_html(ast) do
+    ast
+    |> Minuet.compile(Minuet.Format.HTML)
+    |> eval()
+    |> :erlang.iolist_to_binary()
+    |> case do
+      "" ->
+        nil
+
+      data ->
+        # TODO parse
+        data
     end
   end
 

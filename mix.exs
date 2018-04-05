@@ -36,6 +36,8 @@ defmodule Minuet.MixProject do
     [
       {:poison, "~> 3.1", optional: true},
       {:msgpax, "~> 2.1", optional: true},
+      {:xml_builder, "~> 2.0", optional: true},
+      {:html_builder, "~> 0.1", optional: true},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:rl, "~> 0.1", only: :dev, runtime: false},
       {:excoveralls, "~> 0.8", only: :test},
